@@ -84,7 +84,7 @@
 
 
 banner:
-  image: "./assets/banner.png"
+  image: "https://raw.githubusercontent.com/karantolambiya-cd/nsgmodule-azure-test/test/readme/assets/image-nsg.png"
   link: "https://clouddrove.com/"
 
 title: Terraform Azure Network Security Group Module
