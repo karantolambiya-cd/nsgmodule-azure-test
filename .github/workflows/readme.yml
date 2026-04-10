@@ -77,11 +77,3 @@ jobs:
           working-dir: .
           output-file: README.md
           output-method: inject
-
-      - name: Commit and push changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git commit -m "docs: update README" || echo "No changes to commit"
-          git push
