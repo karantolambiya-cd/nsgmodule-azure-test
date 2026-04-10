@@ -1,0 +1,31 @@
+# banner:
+#   image: "./assets/banner.png"
+#   link: "https://clouddrove.com/"
+
+# title: Terraform Azure Network Security Group Module
+
+# intro: |-
+#   With our comprehensive DevOps toolkit - streamline operations, automate workflows, enhance collaboration and deploy with confidence.
+
+# badges_text: "Latest Release | tfsec | Licence | Changelog"
+
+# about: |-
+#   We are a group of DevOps engineers & architects, joining hands in this ever evolving digital landscape...
+
+# prerequisites_table:
+#   - type: Prerequisite
+#     name: Terraform
+#     version: ">= 1.6.5"
+#   - type: Provider
+#     name: azurerm
+#     version: ">= 5.31.0"
+
+# extras: |-
+#   ## 🚀 Our Accomplishment
+#   We have 100+ Terraform modules 🙌...
+
+#   ## 🤝 Contributors
+#   Big thanks to our contributors...
+
+#   ## 💬 Join Slack
+#   Join our vibrant open-source slack community...
