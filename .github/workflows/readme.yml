@@ -1,8 +1,7 @@
-name: Generate README
+name: Build README
 
 on:
   pull_request:
-    branches: [master]
   push:
     branches: [master]
 
@@ -14,8 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
@@ -25,51 +23,8 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml
 
-      - name: Generate README from README.yaml
-        run: |
-          python <<EOF
-          import yaml
-
-          with open("README.yaml") as f:
-              data = yaml.safe_load(f)
-
-          badges = "\n".join(
-              [f"[![{b['name']}]({b['image']})]({b['url']})" for b in data.get("badges", [])]
-          )
-
-          prereq = "\n".join(
-              [f"- {p['name']} ({p['version']})" for p in data.get("prerequesties", [])]
-          )
-
-          providers = "\n".join(
-              [f"- {p['name']} ({p['version']})" for p in data.get("providers", [])]
-          )
-
-          readme = f"""# {data['name']}
-
-          {badges}
-
-          ## 📄 Description
-          {data['description']}
-
-          ## ⚙️ Prerequisites
-          {prereq}
-
-          ## 🔌 Provider
-          {providers}
-
-          ## 🚀 Usage
-          {data['usage']}
-
-          ---
-
-          <!-- BEGIN_TF_DOCS -->
-          <!-- END_TF_DOCS -->
-          """
-
-          with open("README.md", "w") as f:
-              f.write(readme)
-          EOF
+      - name: Generate README (Cloud Posse style)
+        run: make readme
 
       - name: Inject Terraform Docs
         uses: terraform-docs/gh-actions@v1.4.1
@@ -77,3 +32,4 @@ jobs:
           working-dir: .
           output-file: README.md
           output-method: inject
+          git-push: "true"
