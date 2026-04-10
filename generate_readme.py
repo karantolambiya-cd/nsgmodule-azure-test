@@ -8,24 +8,27 @@ with open("README.yaml") as f:
 intro = data.get("intro", "").strip()
 about = data.get("about", "").strip()
 badges_text = data.get("badges_text", "").strip()
+description = data.get("description", "").strip()
+usage = data.get("usage", "").strip()
+extras = data.get("extras", "").strip()
 
-# Badges
+# Badges (inline)
 badges = " ".join(
     [f"[![{b['name']}]({b['image']})]({b['url']})" for b in data.get("badges", [])]
 )
 
-# Prerequisites
-prereq = "\n".join(
-    [f"- **{p['name']}** ({p['version']})" for p in data.get("prerequesties", [])]
-)
+# Prerequisites table
+prereq_table = ""
+if data.get("prerequesties"):
+    prereq_table += "| Description | Name | Version |\n"
+    prereq_table += "|-------------|------|---------|\n"
+    for p in data["prerequesties"]:
+        prereq_table += f"| Prerequisite | {p['name']} | {p['version']} |\n"
 
-# Providers
-providers = "\n".join(
-    [f"- **{p['name']}** ({p['version']})" for p in data.get("providers", [])]
-)
-
-# Extras
-extras = data.get("extras", "").strip()
+# Providers table
+if data.get("providers"):
+    for p in data["providers"]:
+        prereq_table += f"| Provider | {p['name']} | {p['version']} |\n"
 
 # -------- README -------- #
 
@@ -45,25 +48,21 @@ readme = f"""# {data.get('name', '')}
 
 ---
 
-## ⚙️ Prerequisites
+## ⚙️ Prerequisites and Providers
 
-{prereq}
-
-## 🔌 Providers
-
-{providers}
+{prereq_table}
 
 ---
 
 ## 📝 Description
 
-{data.get('description', '').strip()}
+{description}
 
 ---
 
 ## 🚀 Usage
 
-{data.get('usage', '').strip()}
+{usage}
 
 ---
 
@@ -76,8 +75,6 @@ readme = f"""# {data.get('name', '')}
 
 {extras}
 """
-
-# -------- Write file -------- #
 
 with open("README.md", "w") as f:
     f.write(readme)
