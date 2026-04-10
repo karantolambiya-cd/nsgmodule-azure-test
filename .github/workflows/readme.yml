@@ -1,32 +1,87 @@
-name: Generate Terraform Docs
+name: Generate README
 
 on:
   pull_request:
-    branches:
-      - master
+    branches: [master]
   push:
-    branches:
-      - master
-  
+    branches: [master]
+
 permissions:
-    contents: write 
+  contents: write
 
 jobs:
-  terraform-docs:
+  readme:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          # IMPORTANT: ensures PR branch is checked out (not master)
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
-      - name: Generate Terraform Docs and update README
+      - name: Setup Python
+        uses: actions/setup-python@v5
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Generate README from README.yaml
+        run: |
+          python <<EOF
+          import yaml
+
+          with open("README.yaml") as f:
+              data = yaml.safe_load(f)
+
+          badges = "\n".join(
+              [f"[![{b['name']}]({b['image']})]({b['url']})" for b in data.get("badges", [])]
+          )
+
+          prereq = "\n".join(
+              [f"- {p['name']} ({p['version']})" for p in data.get("prerequesties", [])]
+          )
+
+          providers = "\n".join(
+              [f"- {p['name']} ({p['version']})" for p in data.get("providers", [])]
+          )
+
+          readme = f"""# {data['name']}
+
+          {badges}
+
+          ## 📄 Description
+          {data['description']}
+
+          ## ⚙️ Prerequisites
+          {prereq}
+
+          ## 🔌 Providers
+          {providers}
+
+          ## 🚀 Usage
+          {data['usage']}
+
+          ---
+
+          <!-- BEGIN_TF_DOCS -->
+          <!-- END_TF_DOCS -->
+          """
+
+          with open("README.md", "w") as f:
+              f.write(readme)
+          EOF
+
+      - name: Inject Terraform Docs
         uses: terraform-docs/gh-actions@v1.4.1
         with:
           working-dir: .
           output-file: README.md
           output-method: inject
-          git-push: "true"
-          git-commit-message: "docs: new terraform docs"
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: update README" || echo "No changes to commit"
+          git push
