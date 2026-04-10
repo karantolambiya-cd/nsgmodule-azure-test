@@ -1,57 +1,44 @@
 # This is the canonical configuration for the README.md
-# Run `make readme` to rebuild the README.md
+# Run `python generate_readme.py` to rebuild the README.md
  
-# Name of this project
 name: Terraform azure network security group
  
-# Intro section
 intro: |-
   With our comprehensive DevOps toolkit - streamline operations, automate workflows, enhance collaboration and deploy with confidence.
  
-# Optional text badges line
 badges_text: "Latest Release | tfsec | Licence | Changelog"
  
-# About section
 about: |-
   We are a group of DevOps engineers & architects, joining hands in this ever evolving digital landscape...
  
-# License of this project
 license: "APACHE"
  
-# Canonical GitHub repo
 github_repo: terraform-az-modules/terraform-azurerm-nsg
  
-# Badges to display
 badges:
   - name: "Terraform"
-    image: "https://img.shields.io/badge/Terraform-v0.13-green"
+    image: "https://img.shields.io/badge/Terraform-v1.6-green"
     url: "https://www.terraform.io"
- 
   - name: "Licence"
     image: "https://img.shields.io/badge/License-APACHE-blue.svg"
     url: "LICENSE.md"
- 
   - name: "Changelog"
     image: "https://img.shields.io/badge/Changelog-blue"
     url: "CHANGELOG.md"
  
-# Prerequisites
 prerequesties:
   - name: Terraform
     url: https://learn.hashicorp.com/terraform/getting-started/install.html
-    version: ">= 1.6.6"
+    version: ">= 1.10.0"
  
-# Providers
 providers:
-  - name: azure
-    url: https://azure.microsoft.com/
-    version: ">= 3.116.0"
+  - name: azurerm
+    url: https://registry.terraform.io/providers/hashicorp/azurerm/latest
+    version: ">= 4.0"
  
-# Description of this project
 description: |-
   Terraform module to create network security group resource on Azure.
  
-# Usage section
 usage: |-
   ### Complete Example
  
@@ -94,4 +81,243 @@ usage: |-
     log_analytics_workspace_id = module.log-analytics.workspace_id
   }
   ```
+ 
+modules:
+  - name: labels
+    source: terraform-az-modules/tags/azurerm
+    version: "1.0.2"
+ 
+resources:
+  - name: azurerm_monitor_diagnostic_setting.nsg_diagnostic
+    type: resource
+    url: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting
+  - name: azurerm_network_interface_security_group_association.nsg_nic_association
+    type: resource
+    url: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_interface_security_group_association
+  - name: azurerm_network_security_group.nsg
+    type: resource
+    url: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group
+  - name: azurerm_network_security_rule.inbound
+    type: resource
+    url: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule
+  - name: azurerm_network_security_rule.outbound
+    type: resource
+    url: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule
+  - name: azurerm_subnet_network_security_group_association.nsg_subnet_association
+    type: resource
+    url: https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_network_security_group_association
+ 
+inputs:
+  - name: resource_group_name
+    description: The name of the resource group in which to create the network security group.
+    type: "string"
+    default: ~
+    required: true
+ 
+  - name: name
+    description: "Name (e.g. `app` or `cluster`)."
+    type: "string"
+    default: '""'
+    required: false
+ 
+  - name: environment
+    description: "Environment (e.g. `prod`, `dev`, `staging`)."
+    type: "string"
+    default: '""'
+    required: false
+ 
+  - name: location
+    description: The location/region where the virtual network is created. Changing this forces a new resource to be created.
+    type: "string"
+    default: '""'
+    required: false
+ 
+  - name: enabled
+    description: Set to false to prevent the module from creating any resources.
+    type: "bool"
+    default: "true"
+    required: false
+ 
+  - name: enable_diagnostic
+    description: Set to false to prevent the module from creating the diagnostic setting for the NSG resource.
+    type: "bool"
+    default: "false"
+    required: false
+ 
+  - name: subnet_association
+    description: "If true, the Network Security Group will be associated with the subnets specified in `subnet_ids`."
+    type: "bool"
+    default: "true"
+    required: false
+ 
+  - name: subnet_ids
+    description: A list of Subnet IDs to associate with the Network Security Group.
+    type: "list(string)"
+    default: "[]"
+    required: false
+ 
+  - name: nic_association
+    description: "If true, the Network Security Group will be associated with the network interfaces specified in `nic_ids`."
+    type: "bool"
+    default: "false"
+    required: false
+ 
+  - name: nic_ids
+    description: A list of Network Interface IDs to associate with the Network Security Group.
+    type: "list(string)"
+    default: "[]"
+    required: false
+ 
+  - name: inbound_rules
+    description: List of objects that represent the configuration of each inbound rule.
+    type: |
+      list(object({
+        name                         = string
+        priority                     = number
+        access                       = string
+        protocol                     = string
+        source_address_prefix        = optional(string)
+        source_address_prefixes      = optional(list(string))
+        source_port_range            = optional(string)
+        destination_address_prefix   = optional(string)
+        destination_address_prefixes = optional(list(string))
+        destination_port_range       = optional(string)
+        description                  = optional(string)
+      }))
+    default: "[]"
+    required: false
+ 
+  - name: outbound_rules
+    description: List of objects that represent the configuration of each outbound rule.
+    type: |
+      list(object({
+        name                         = string
+        priority                     = number
+        access                       = string
+        protocol                     = string
+        source_address_prefix        = optional(string)
+        source_address_prefixes      = optional(list(string))
+        source_port_range            = optional(string)
+        destination_address_prefix   = optional(string)
+        destination_address_prefixes = optional(list(string))
+        destination_port_range       = optional(string)
+        description                  = optional(string)
+      }))
+    default: "[]"
+    required: false
+ 
+  - name: log_analytics_workspace_id
+    description: Log analytics workspace id to pass to destination details of diagnostic setting of NSG.
+    type: "string"
+    default: "null"
+    required: false
+ 
+  - name: log_analytics_destination_type
+    description: "Possible values are AzureDiagnostics and Dedicated. When Dedicated, logs go into resource-specific tables instead of the legacy AzureDiagnostics table."
+    type: "string"
+    default: '"AzureDiagnostics"'
+    required: false
+ 
+  - name: eventhub_name
+    description: Eventhub Name to pass to destination details of diagnostic setting of NSG.
+    type: "string"
+    default: "null"
+    required: false
+ 
+  - name: eventhub_authorization_rule_id
+    description: Eventhub authorization rule id to pass to destination details of diagnostic setting of NSG.
+    type: "string"
+    default: "null"
+    required: false
+ 
+  - name: storage_account_id
+    description: Storage ID for Log Analytics.
+    type: "string"
+    default: "null"
+    required: false
+ 
+  - name: logs
+    description: List of log categories. Defaults to all available.
+    type: "list(map(string))"
+    default: "[]"
+    required: false
+ 
+  - name: extra_tags
+    description: Variable to pass extra tags.
+    type: "map(string)"
+    default: "null"
+    required: false
+ 
+  - name: label_order
+    description: The order of labels used to construct resource names or tags.
+    type: "list(any)"
+    default: '["name", "environment", "location"]'
+    required: false
+ 
+  - name: managedby
+    description: "ManagedBy, eg 'terraform-az-modules'."
+    type: "string"
+    default: '"terraform-az-modules"'
+    required: false
+ 
+  - name: repository
+    description: Terraform current module repo.
+    type: "string"
+    default: '"https://github.com/terraform-az-modules/terraform-azure-nsg"'
+    required: false
+ 
+  - name: deployment_mode
+    description: Specifies how the infrastructure/resource is deployed.
+    type: "string"
+    default: '"terraform"'
+    required: false
+ 
+  - name: resource_position_prefix
+    description: "Controls placement of the resource type keyword in the name. If true, prepended ('nsg-core-dev'); if false, appended ('core-dev-nsg')."
+    type: "bool"
+    default: "true"
+    required: false
+ 
+  - name: custom_name
+    description: Override default naming convention.
+    type: "string"
+    default: "null"
+    required: false
+ 
+  - name: create
+    description: Timeout used when creating the resource.
+    type: "string"
+    default: '"30m"'
+    required: false
+ 
+  - name: read
+    description: Timeout used when retrieving the resource.
+    type: "string"
+    default: '"5m"'
+    required: false
+ 
+  - name: update
+    description: Timeout used when updating the resource.
+    type: "string"
+    default: '"30m"'
+    required: false
+ 
+  - name: delete
+    description: Timeout used when deleting the resource.
+    type: "string"
+    default: '"30m"'
+    required: false
+ 
+outputs:
+  - name: id
+    description: The network security group configuration ID.
+ 
+  - name: name
+    description: The name of the network security group.
+ 
+  - name: network_security_group_id
+    description: The ID of the network security group.
+ 
+  - name: tags
+    description: The tags assigned to the resource.
  

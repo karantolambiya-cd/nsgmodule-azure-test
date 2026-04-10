@@ -1,11 +1,11 @@
 import yaml
- 
- 
+
+
 def anchor(name):
     """Generate a GitHub markdown anchor id from a variable name."""
     return name.replace("_", "\\_")
- 
- 
+
+
 def build_requirements_table(data):
     """Build the Requirements table from prerequesties."""
     rows = data.get("prerequesties") or []
@@ -24,8 +24,8 @@ def build_requirements_table(data):
             f'| <a name="requirement_{anchor_id}"></a> [{anchor(name)}](#{anchor_id}) | {ver} |'
         )
     return "\n".join(lines)
- 
- 
+
+
 def build_providers_table(data):
     """Build the Providers table."""
     rows = data.get("providers") or []
@@ -44,8 +44,8 @@ def build_providers_table(data):
             f'| <a name="provider_{anchor_id}"></a> [{anchor(name)}](#{anchor_id}) | {ver} |'
         )
     return "\n".join(lines)
- 
- 
+
+
 def build_modules_table(data):
     """Build the Modules table."""
     rows = data.get("modules") or []
@@ -65,8 +65,8 @@ def build_modules_table(data):
             f'| <a name="{anchor_id}"></a> [{name}](#{anchor_id}) | {source} | {ver} |'
         )
     return "\n".join(lines)
- 
- 
+
+
 def build_resources_table(data):
     """Build the Resources table."""
     rows = data.get("resources") or []
@@ -83,8 +83,8 @@ def build_resources_table(data):
         url = r.get("url", "#")
         lines.append(f"| [{name}]({url}) | {rtype} |")
     return "\n".join(lines)
- 
- 
+
+
 def build_inputs_table(data):
     """Build the Inputs table with name, description, type, default, required."""
     rows = data.get("inputs") or []
@@ -101,13 +101,13 @@ def build_inputs_table(data):
         raw_type = (inp.get("type") or "string").strip()
         required = inp.get("required", False)
         default_val = inp.get("default")
- 
+
         # Format multi-line types as a code block
         if "\n" in raw_type:
             formatted_type = "<pre>" + raw_type.replace("\n", "<br/>").replace("  ", "&nbsp;&nbsp;") + "</pre>"
         else:
             formatted_type = f"`{raw_type}`"
- 
+
         # Format default value
         if required or default_val is None:
             formatted_default = "n/a"
@@ -116,15 +116,15 @@ def build_inputs_table(data):
             default_str = str(default_val).strip() if default_val != "~" else "null"
             formatted_default = f"`{default_str}`"
             req_symbol = "no"
- 
+
         anchor_id = f"input_{name}"
         lines.append(
             f'| <a name="{anchor_id}"></a> [{anchor(name)}](#{anchor_id}) '
             f"| {desc} | {formatted_type} | {formatted_default} | {req_symbol} |"
         )
     return "\n".join(lines)
- 
- 
+
+
 def build_outputs_table(data):
     """Build the Outputs table."""
     rows = data.get("outputs") or []
@@ -143,12 +143,12 @@ def build_outputs_table(data):
             f'| <a name="{anchor_id}"></a> [{anchor(name)}](#{anchor_id}) | {desc} |'
         )
     return "\n".join(lines)
- 
- 
+
+
 def generate_readme(yaml_path="README.yaml", output_path="README.md"):
     with open(yaml_path) as f:
         data = yaml.safe_load(f)
- 
+
     # ── Simple string fields ──────────────────────────────────────────────────
     name         = (data.get("name") or "").strip()
     intro        = (data.get("intro") or "").strip()
@@ -157,20 +157,20 @@ def generate_readme(yaml_path="README.yaml", output_path="README.md"):
     description  = (data.get("description") or "").strip()
     usage        = (data.get("usage") or "").strip()
     extras       = (data.get("extras") or "").strip()
- 
+
     # ── Badges (inline) ───────────────────────────────────────────────────────
     badges = " ".join(
         f"[![{b['name']}]({b['image']})]({b['url']})"
         for b in (data.get("badges") or [])
     )
- 
+
     # ── Prerequisites + Providers (summary table at top) ─────────────────────
     prereq_rows = []
     for p in (data.get("prerequesties") or []):
         prereq_rows.append(f"| Prerequisite | {p['name']} | {p['version']} |")
     for p in (data.get("providers") or []):
         prereq_rows.append(f"| Provider | {p['name']} | {p['version']} |")
- 
+
     if prereq_rows:
         prereq_summary = (
             "| Description | Name | Version |\n"
@@ -179,7 +179,7 @@ def generate_readme(yaml_path="README.yaml", output_path="README.md"):
         )
     else:
         prereq_summary = "_No prerequisites or providers defined._"
- 
+
     # ── Detailed terraform-docs style tables ─────────────────────────────────
     tf_docs_sections = "\n\n".join(filter(None, [
         build_requirements_table(data),
@@ -189,13 +189,13 @@ def generate_readme(yaml_path="README.yaml", output_path="README.md"):
         build_inputs_table(data),
         build_outputs_table(data),
     ]))
- 
+
     tf_docs_block = (
         "<!-- BEGIN_TF_DOCS -->\n"
         + tf_docs_sections
         + "\n<!-- END_TF_DOCS -->"
     )
- 
+
     # ── Assemble sections, skip empties ──────────────────────────────────────
     parts = [
         f"# {name}",
@@ -219,18 +219,17 @@ def generate_readme(yaml_path="README.yaml", output_path="README.md"):
         tf_docs_block,
         "---",
     ]
- 
+
     if extras:
         parts.append(extras)
- 
+
     readme = "\n\n".join(p for p in parts if p) + "\n"
- 
+
     with open(output_path, "w") as f:
         f.write(readme)
- 
+
     print(f"✅  {output_path} generated successfully.")
- 
- 
+
+
 if __name__ == "__main__":
     generate_readme()
- 
