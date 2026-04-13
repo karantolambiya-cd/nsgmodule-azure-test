@@ -1,32 +1,38 @@
-name: Generate Terraform Docs
+name: Generate README
 
 on:
   pull_request:
-    branches:
-      - master
+    branches: [master]
   push:
-    branches:
-      - master
-  
+    branches: [master]
+
 permissions:
-    contents: write 
+  contents: write
 
 jobs:
-  terraform-docs:
+  readme:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          # IMPORTANT: ensures PR branch is checked out (not master)
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
-      - name: Generate Terraform Docs and update README
+      - name: Setup Python
+        uses: actions/setup-python@v5
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Generate README
+        run: make readme
+
+      - name: Inject Terraform Docs
         uses: terraform-docs/gh-actions@v1.4.1
         with:
           working-dir: .
           output-file: README.md
           output-method: inject
           git-push: "true"
-          git-commit-message: "docs: new terraform docs"
+          git-commit-message: "docs: update README"
