@@ -1,3 +1,54 @@
+
+
+# Terraform Azure Network Security Group
+
+With our comprehensive DevOps toolkit - streamline operations, automate workflows, enhance collaboration and deploy with confidence.
+
+Latest Release | tfsec | Licence | Changelog
+
+[![Terraform](https://img.shields.io/badge/Terraform-v1.6-green)](https://www.terraform.io) [![Licence](https://img.shields.io/badge/License-APACHE-blue.svg)](LICENSE.md)
+
+---
+
+## 📖 About
+
+Terraform module to create and manage Network Security Groups (NSG) on Azure.
+
+---
+
+## ⚙️ Prerequisites and Providers
+
+| Description | Name | Version |
+|-------------|------|---------|
+| Prerequisite | Terraform | >= 1.6.6 |
+| Provider | azurerm | >= 4.0 |
+
+
+---
+
+## 📝 Description
+
+Terraform module to create Network Security Group on Azure.
+
+---
+
+## 🚀 Usage
+
+### Example
+
+```hcl
+module "nsg" {
+  source = "./"
+
+  name                = "nsg-demo"
+  resource_group_name = "rg-demo"
+  location            = "Central India"
+}
+
+---
+
+## 📥 Inputs and Outputs
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -72,3 +123,11 @@
 | <a name="output_network_security_group_id"></a> [network\_security\_group\_id](#output\_network\_security\_group\_id) | The ID of network security group |
 | <a name="output_tags"></a> [tags](#output\_tags) | The tags assigned to the resource. |
 <!-- END_TF_DOCS -->
+
+---
+
+
+
+---
+
+
