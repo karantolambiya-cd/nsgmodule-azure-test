@@ -1,7 +1,8 @@
-name: Build README
+name: Generate README
 
 on:
   pull_request:
+    branches: [master]
   push:
     branches: [master]
 
@@ -13,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
@@ -23,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml
 
-      - name: Generate README (Cloud Posse style)
+      - name: Generate README
         run: make readme
 
       - name: Inject Terraform Docs
@@ -33,3 +35,4 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: "true"
+          git-commit-message: "docs: update README"
